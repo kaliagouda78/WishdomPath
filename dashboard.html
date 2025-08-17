@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Animated Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      width: 100%;
+      max-width: 1200px;
+      padding: 20px;
+    }
+
+    .box {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px 20px;
+      border-radius: 16px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      aspect-ratio: 1/1;
+      position: relative;
+      overflow: hidden;
+      will-change: transform;
+      opacity: 0;
+    }
+
+    .box i {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: #6a11cb;
+      transition: all 0.3s ease;
+    }
+
+    .box h1 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: #2c3e50;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .box::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, #6a11cb, #2575fc);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .log {
+      position: fixed;
+      bottom: 30px;
+      left: 0;
+      right: 0;
+      text-align: center;
+    }
+
+    .log a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 12px 30px;
+      border-radius: 50px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      display: inline-block;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      
+      .box {
+        padding: 25px 15px;
+      }
+      
+      .box h1 {
+        font-size: 1.3rem;
+      }
+      
+      .box i {
+        font-size: 2.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="container">
+      <div id="userBox" class="box">
+        <i class="fas fa-users"></i>
+        <h1>User Management</h1>
+      </div>
+      <div id="courseBox" class="box">
+        <i class="fas fa-graduation-cap"></i>
+        <h1>CourseHub</h1>
+      </div>
+      <div id="helpBox" class="box">
+        <i class="fas fa-question-circle"></i>
+        <h1>HelpDesk</h1>
+      </div>
+      <div id="dashBox" class="box">
+        <i class="fas fa-chart-line"></i>
+        <h1>Dashlytics</h1>
+      </div>
+      <div id="revenueBox" class="box">
+        <i class="fas fa-money-bill-wave"></i>
+        <h1>Revenue Management</h1>
+      </div>
+    </div>
+  </main>
+
+  <div class="log">
+    <a href="index.html">Go to Login Page</a>
+  </div>
+
+  <script>
+    // GSAP Animations
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initial animation - boxes fly in
+      gsap.to('.box', {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: "back.out(1.7)",
+        delay: 0.3
+      });
+      
+      // Hover animations for each box
+      const boxes = document.querySelectorAll('.box');
+      
+      boxes.forEach(box => {
+        // Mouse enter animation
+        box.addEventListener('mouseenter', () => {
+          gsap.to(box, {
+            y: -10,
+            scale: 1.05,
+            duration: 0.3,
+            ease: "power2.out"
+          });
+          gsap.to(box.querySelector('i'), {
+            color: "#2575fc",
+            scale: 1.1,
+            duration: 0.3
+          });
+          gsap.to(box.querySelector('h1'), {
+            color: "#6a11cb",
+            duration: 0.3
+          });
+          gsap.to(box, {
+            boxShadow: "0 20px 40px rgba(0,0,0,0.25)",
+            duration: 0.3
+          });
+          gsap.to(box.querySelector('::after'), {
+            transform: "scaleX(1)",
+            duration: 0.3
+          });
+        });
+        
+        // Mouse leave animation
+        box.addEventListener('mouseleave', () => {
+          gsap.to(box, {
+            y: 0,
+            scale: 1,
+            duration: 0.3,
+            ease: "power2.out"
+          });
+          gsap.to(box.querySelector('i'), {
+            color: "#6a11cb",
+            scale: 1,
+            duration: 0.3
+          });
+          gsap.to(box.querySelector('h1'), {
+            color: "#2c3e50",
+            duration: 0.3
+          });
+          gsap.to(box, {
+            boxShadow: "0 15px 35px rgba(0,0,0,0.2)",
+            duration: 0.3
+          });
+        });
+        
+        // Click handler
+        box.addEventListener('click', function() {
+          // Click animation
+          gsap.to(box, {
+            scale: 0.9,
+            duration: 0.1,
+            yoyo: true,
+            repeat: 1,
+            onComplete: () => {
+              // Navigate to respective page
+              const id = box.id;
+              const pages = {
+                userBox: "user-management.html",
+                courseBox: "coursehub.html",
+                helpBox: "helpdesk.html",
+                dashBox: "dashlytics.html",
+                revenueBox: "revenue.html"
+              };
+              window.location.href = pages[id];
+            }
+          });
+        });
+      });
+      
+      // Login button animation
+      const loginBtn = document.querySelector('.log a');
+      loginBtn.addEventListener('mouseenter', () => {
+        gsap.to(loginBtn, {
+          y: -3,
+          scale: 1.05,
+          backgroundColor: "rgba(255,255,255,0.3)",
+          duration: 0.3
+        });
+      });
+      loginBtn.addEventListener('mouseleave', () => {
+        gsap.to(loginBtn, {
+          y: 0,
+          scale: 1,
+          backgroundColor: "rgba(255,255,255,0.2)",
+          duration: 0.3
+        });
+      });
+    });
+  </script>
+</body>
+</html>

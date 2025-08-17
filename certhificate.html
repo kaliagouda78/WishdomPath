@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Certificates | Admin & Student</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #1e293b;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .role-switch {
+      padding: 8px 14px;
+      border-radius: 4px;
+      border: none;
+      background-color: #38bdf8;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .container {
+      padding: 30px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 5px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .cert-list {
+      margin-top: 20px;
+    }
+
+    .cert-item {
+      background: white;
+      padding: 10px 15px;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .cert-link {
+      color: #2563eb;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🎓 Certificate System</h1>
+    <select class="role-switch" id="roleSelect" onchange="switchRole(this.value)">
+      <option value="admin">Admin</option>
+      <option value="student">Student</option>
+    </select>
+  </header>
+
+  <div class="container">
+
+    <!-- ADMIN PANEL -->
+    <div id="adminPanel">
+      <h2>Post Certificate (Admin)</h2>
+      <div class="form-group">
+        <label for="studentName">Select Student</label>
+        <select id="studentName">
+          <option value="John">John</option>
+          <option value="Priya">Priya</option>
+          <option value="Ravi">Ravi</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="certFile">Upload Certificate (PDF/Image)</label>
+        <input type="file" id="certFile" />
+      </div>
+
+      <button onclick="uploadCertificate()">Upload Certificate</button>
+    </div>
+
+    <!-- STUDENT PANEL -->
+    <div id="studentPanel" class="hidden">
+      <h2>My Certificates (Student)</h2>
+      <div class="form-group">
+        <label for="currentStudent">Your Name:</label>
+        <select id="currentStudent" onchange="loadCertificates()">
+          <option value="John">John</option>
+          <option value="Priya">Priya</option>
+          <option value="Ravi">Ravi</option>
+        </select>
+      </div>
+
+      <div class="cert-list" id="certList">
+        <!-- Dynamic Certificate List -->
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function switchRole(role) {
+      document.getElementById("adminPanel").classList.toggle("hidden", role !== "admin");
+      document.getElementById("studentPanel").classList.toggle("hidden", role !== "student");
+
+      if (role === "student") {
+        loadCertificates();
+      }
+    }
+
+    function uploadCertificate() {
+      const student = document.getElementById("studentName").value;
+      const fileInput = document.getElementById("certFile");
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Please select a certificate file.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const certData = {
+          name: file.name,
+          url: e.target.result,
+          type: file.type,
+        };
+
+        let data = JSON.parse(localStorage.getItem("certificates") || "{}");
+
+        if (!data[student]) data[student] = [];
+        data[student].push(certData);
+
+        localStorage.setItem("certificates", JSON.stringify(data));
+        alert("✅ Certificate uploaded for " + student);
+        fileInput.value = "";
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    function loadCertificates() {
+      const student = document.getElementById("currentStudent").value;
+      const certList = document.getElementById("certList");
+      certList.innerHTML = "";
+
+      let data = JSON.parse(localStorage.getItem("certificates") || "{}");
+      const certs = data[student] || [];
+
+      if (certs.length === 0) {
+        certList.innerHTML = "<p>No certificates found.</p>";
+        return;
+      }
+
+      certs.forEach(cert => {
+        const item = document.createElement("div");
+        item.className = "cert-item";
+        item.innerHTML = `<strong>${cert.name}</strong><br>
+                          <a class="cert-link" href="${cert.url}" target="_blank">📄 View Certificate</a>`;
+        certList.appendChild(item);
+      });
+    }
+
+    // Initial role
+    switchRole("admin");
+  </script>
+</body>
+</html>

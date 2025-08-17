@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduMaster - All-in-One Page</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      color: white;
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+    header {
+      background: white;
+      color: #4b0082;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      color: #6a11cb;
+    }
+    nav a {
+      margin: 0 10px;
+      color: #6a11cb;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    .hero {
+      text-align: center;
+      padding: 60px 20px;
+      background: #4b0082;
+    }
+    .hero h2 {
+      font-size: 2.5rem;
+    }
+    button {
+      padding: 10px 20px;
+      background: white;
+      color: #4b0082;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #ccc;
+    }
+    .module {
+      padding: 40px 20px;
+    }
+    .dashboard {
+      display: flex;
+      justify-content: space-around;
+      background: #fff3;
+      padding: 20px;
+      border-radius: 10px;
+      flex-wrap: wrap;
+    }
+    .dashboard div {
+      margin: 10px;
+    }
+    .course-card {
+      background: #fff3;
+      padding: 20px;
+      margin: 10px 0;
+      border-radius: 10px;
+    }
+    #quizFeedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #222;
+      color: #ccc;
+    }
+    @media(max-width: 600px) {
+      .dashboard {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>EduMaster</h1>
+    <nav>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#courses">Courses</a>
+      <a href="#quiz">Quiz</a>
+      <a href="#certificate">Certificate</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h2>Welcome to EduMaster</h2>
+    <p>Learn. Practice. Achieve.</p>
+    <button onclick="scrollToDashboard()">Go to Dashboard</button>
+  </section>
+
+  <section id="dashboard" class="module">
+    <h3>📊 Dashboard</h3>
+    <div class="dashboard">
+      <div>📚 Enrolled Courses: <strong>5</strong></div>
+      <div>📈 Progress: <strong>75%</strong></div>
+      <div>⏰ Upcoming Class: <strong>Aug 1, 11:00 AM</strong></div>
+    </div>
+  </section>
+
+  <section id="courses" class="module">
+    <h3>🎓 Course Management</h3>
+    <div class="course-card">
+      <h4>HTML & CSS Basics</h4>
+      <p>Build modern responsive websites</p>
+      <button>Continue</button>
+    </div>
+    <div class="course-card">
+      <h4>JavaScript Mastery</h4>
+      <p>Master logic and interactivity</p>
+      <button>Start Now</button>
+    </div>
+  </section>
+
+  <section id="quiz" class="module">
+    <h3>📝 Quiz Section</h3>
+    <p>Q: How many tags are in HTML5?</p>
+    <input type="text" id="quizAnswer" placeholder="Your answer" />
+    <button onclick="checkAnswer()">Submit</button>
+    <div id="quizFeedback"></div>
+  </section>
+
+  <section id="certificate" class="module">
+    <h3>🏆 Certificate</h3>
+    <p>You've completed <strong>JavaScript Mastery</strong> course!</p>
+    <button onclick="downloadCertificate()">Download PDF</button>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 EduMaster. All rights reserved.</p>
+  </footer>
+
+  <script>
+    gsap.from("header", { duration: 1, y: -100, opacity: 0, ease: "bounce" });
+    gsap.from(".hero h2", { duration: 1, x: -100, opacity: 0, delay: 0.5 });
+    gsap.from(".hero p", { duration: 1, x: 100, opacity: 0, delay: 1 });
+
+    function scrollToDashboard() {
+      document.getElementById("dashboard").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function checkAnswer() {
+      const answer = document.getElementById("quizAnswer").value.trim();
+      const feedback = document.getElementById("quizFeedback");
+      if (answer === "110" || answer.toLowerCase() === "about 110") {
+        feedback.textContent = "✅ Correct!";
+        feedback.style.color = "lightgreen";
+      } else {
+        feedback.textContent = "❌ Incorrect. Try again!";
+        feedback.style.color = "red";
+      }
+    }
+
+    function downloadCertificate() {
+      alert("🎉 Certificate downloaded!");
+    }
+  </script>
+</body>
+</html>

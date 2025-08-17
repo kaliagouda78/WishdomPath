@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --primary: #6a11cb;
+      --secondary: #2575fc;
+      --dark: #2c3e50;
+      --light: #f8f9fa;
+      --danger: #e74c3c;
+      --success: #2ecc71;
+      --warning: #f39c12;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      color: var(--dark);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      color: var(--primary);
+      font-size: 2.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .back-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
+    }
+
+    .back-btn:hover {
+      background: #5a0db3;
+      transform: translateY(-2px);
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .action-btn {
+      background: white;
+      border: none;
+      padding: 25px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .action-btn i {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      color: var(--primary);
+    }
+
+    .action-btn h2 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: var(--dark);
+    }
+
+    .action-btn p {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .add-student { border-left: 5px solid var(--success); }
+    .remove-student { border-left: 5px solid var(--danger); }
+    .assign-role { border-left: 5px solid var(--warning); }
+    .manage-access { border-left: 5px solid var(--primary); }
+
+    /* Table Styles */
+    .user-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .user-table th, .user-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    .user-table th {
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+    }
+
+    .user-table tr:hover {
+      background: #f8f9fa;
+    }
+
+    .badge {
+      padding: 5px 10px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: white;
+    }
+
+    .badge-admin {
+      background: var(--primary);
+    }
+
+    .badge-teacher {
+      background: var(--warning);
+    }
+
+    .badge-student {
+      background: var(--success);
+    }
+
+    .action-cell {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+      background: var(--warning);
+      color: white;
+    }
+
+    .btn-delete {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    /* MODAL STYLES */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal.active {
+      display: flex;
+      animation: fadeIn 0.3s;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      animation: slideDown 0.3s;
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .modal-header h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--primary);
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
+      transition: all 0.3s ease;
+    }
+
+    .close-modal:hover {
+      color: var(--danger);
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .modal-body label {
+      font-weight: 500;
+      color: var(--dark);
+      margin-bottom: -10px;
+    }
+
+    .modal-body input, .modal-body select {
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .modal-body input:focus, .modal-body select:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+
+    .btn-cancel {
+      background: #f1f1f1;
+      color: #666;
+    }
+
+    .btn-submit {
+      background: var(--primary);
+      color: white;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-20px); }
+      to { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-users"></i> User Management</h1>
+      <button class="back-btn" id="backBtn">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </button>
+    </header>
+
+    <div class="action-buttons">
+      <button class="action-btn add-student" id="addStudentBtn">
+        <i class="fas fa-user-plus"></i>
+        <h2>Add Student</h2>
+        <p>Register new students to the system</p>
+      </button>
+
+      <button class="action-btn remove-student" id="removeStudentBtn">
+        <i class="fas fa-user-minus"></i>
+        <h2>Remove Student</h2>
+        <p>Delete student records from system</p>
+      </button>
+
+      <button class="action-btn assign-role" id="assignRoleBtn">
+        <i class="fas fa-user-tag"></i>
+        <h2>Assign Role</h2>
+        <p>Change user roles and permissions</p>
+      </button>
+
+      <button class="action-btn manage-access" id="manageAccessBtn">
+        <i class="fas fa-shield-alt"></i>
+        <h2>Manage Access</h2>
+        <p>Control system access permissions</p>
+      </button>
+    </div>
+
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody">
+        <!-- Users will be populated here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- MODALS -->
+  <div class="modal" id="addStudentModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-user-plus"></i> Add New Student</h2>
+        <button class="close-modal">&times;</button>
+      </div>
+      <form id="addStudentForm">
+        <div class="modal-body">
+          <label for="studentName">Full Name:</label>
+          <input type="text" id="studentName" name="studentName" placeholder="Enter full name" required>
+
+          <label for="studentEmail">Email:</label>
+          <input type="email" id="studentEmail" name="studentEmail" placeholder="Enter email address" required>
+
+          <label for="studentId">Student ID:</label>
+          <input type="text" id="studentId" name="studentId" placeholder="Enter student ID" required>
+
+          <label for="studentCourse">Course:</label>
+          <input type="text" id="studentCourse" name="studentCourse" placeholder="Enter course name" required>
+
+          <label for="studentPassword">Password:</label>
+          <input type="password" id="studentPassword" name="studentPassword" placeholder="Create password" required>
+
+          <label for="studentRole">Role:</label>
+          <select id="studentRole" name="studentRole">
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-cancel close-modal">Cancel</button>
+          <button type="submit" class="btn btn-submit">Add Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="assignRoleModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-user-tag"></i> Assign Role</h2>
+        <button class="close-modal">&times;</button>
+      </div>
+      <form id="assignRoleForm">
+        <div class="modal-body">
+          <label for="userSelect">Select User:</label>
+          <select id="userSelect" name="userSelect" required>
+            <option value="">-- Select a user --</option>
+            <!-- Users will be populated here -->
+          </select>
+
+          <label for="newRole">New Role:</label>
+          <select id="newRole" name="newRole" required>
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-cancel close-modal">Cancel</button>
+          <button type="submit" class="btn btn-submit">Update Role</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="manageAccessModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-shield-alt"></i> Manage Access</h2>
+        <button class="close-modal">&times;</button>
+      </div>
+      <form id="manageAccessForm">
+        <div class="modal-body">
+          <label for="accessUserSelect">Select User:</label>
+          <select id="accessUserSelect" name="accessUserSelect" required>
+            <option value="">-- Select a user --</option>
+            <!-- Users will be populated here -->
+          </select>
+
+          <label for="accessStatus">Access Status:</label>
+          <select id="accessStatus" name="accessStatus" required>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+            <option value="banned">Banned</option>
+          </select>
+
+          <label for="accessReason">Reason (optional):</label>
+          <textarea id="accessReason" name="accessReason" rows="3" placeholder="Enter reason for status change"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-cancel close-modal">Cancel</button>
+          <button type="submit" class="btn btn-submit">Update Access</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('backBtn').addEventListener('click', function() {
+      window.location.href = '/dashboard.html'; // Redirect to the dashboard
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+      // Sample user data
+      let users = [
+        { id: 1, name: "John Doe", email: "john@example.com", studentId: "S1001", course: "Computer Science", role: "admin", status: "active", joinDate: "2023-01-15" },
+        { id: 2, name: "Jane Smith", email: "jane@example.com", studentId: "S1002", course: "Mathematics", role: "teacher", status: "active", joinDate: "2023-02-20" },
+        { id: 3, name: "Mike Johnson", email: "mike@example.com", studentId: "S1003", course: "Physics", role: "student", status: "active", joinDate: "2023-03-10" },
+        { id: 4, name: "Sarah Williams", email: "sarah@example.com", studentId: "S1004", course: "Biology", role: "student", status: "active", joinDate: "2023-04-05" }
+      ];
+
+      // DOM Elements
+      const modals = {
+        addStudent: document.getElementById('addStudentModal'),
+        assignRole: document.getElementById('assignRoleModal'),
+        manageAccess: document.getElementById('manageAccessModal')
+      };
+      
+      const buttons = {
+        addStudent: document.getElementById('addStudentBtn'),
+        assignRole: document.getElementById('assignRoleBtn'),
+        manageAccess: document.getElementById('manageAccessBtn'),
+        removeStudent: document.getElementById('removeStudentBtn'),
+        back: document.getElementById('backBtn')
+      };
+      
+      const forms = {
+        addStudent: document.getElementById('addStudentForm'),
+        assignRole: document.getElementById('assignRoleForm'),
+        manageAccess: document.getElementById('manageAccessForm')
+      };
+      
+      const closeButtons = document.querySelectorAll('.close-modal');
+      
+      // Initialize the page
+      renderUserTable();
+      populateUserSelects();
+      
+      // Event Listeners
+      buttons.addStudent.addEventListener('click', () => toggleModal('addStudent'));
+      buttons.assignRole.addEventListener('click', () => toggleModal('assignRole'));
+      buttons.manageAccess.addEventListener('click', () => toggleModal('manageAccess'));
+      
+      buttons.removeStudent.addEventListener('click', showRemoveStudentDialog);
+      buttons.back.addEventListener('click', () => {
+        Swal.fire('Info', 'Redirecting back to dashboard...', 'info');
+      });
+      
+      closeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const modal = this.closest('.modal');
+          modal.classList.remove('active');
+        });
+      });
+      
+      Object.values(modals).forEach(modal => {
+        modal.addEventListener('click', function(e) {
+          if (e.target === this) {
+            this.classList.remove('active');
+          }
+        });
+      });
+      
+      // Form Submissions
+      forms.addStudent.addEventListener('submit', handleAddStudent);
+      forms.assignRole.addEventListener('submit', handleAssignRole);
+      forms.manageAccess.addEventListener('submit', handleManageAccess);
+      
+      // Functions
+      function toggleModal(modalName) {
+        Object.values(modals).forEach(m => m.classList.remove('active'));
+        modals[modalName].classList.add('active');
+      }
+      
+      function renderUserTable() {
+        const tableBody = document.getElementById('userTableBody');
+        tableBody.innerHTML = '';
+        
+        users.forEach(user => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${user.id}</td>
+            <td>${user.name}</td>
+            <td>${user.email}</td>
+            <td><span class="badge ${user.role === 'admin' ? 'badge-admin' : 
+                                user.role === 'teacher' ? 'badge-teacher' : 
+                                'badge-student'}">${user.role}</span></td>
+            <td>${user.status}</td>
+            <td class="action-cell">
+              <button class="btn btn-edit" data-id="${user.id}">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <button class="btn btn-delete" data-id="${user.id}">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+        
+        // Add event listeners to edit and delete buttons
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const userId = parseInt(this.getAttribute('data-id'));
+            editUser(userId);
+          });
+        });
+        
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const userId = parseInt(this.getAttribute('data-id'));
+            confirmDeleteUser(userId);
+          });
+        });
+      }
+      
+      function populateUserSelects() {
+        const userSelects = [
+          document.getElementById('userSelect'),
+          document.getElementById('accessUserSelect')
+        ];
+        
+        userSelects.forEach(select => {
+          select.innerHTML = '<option value="">-- Select a user --</option>';
+          users.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.id;
+            option.textContent = `${user.name} (${user.email})`;
+            select.appendChild(option);
+          });
+        });
+      }
+      
+      function handleAddStudent(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('studentName').value;
+        const email = document.getElementById('studentEmail').value;
+        const studentId = document.getElementById('studentId').value;
+        const course = document.getElementById('studentCourse').value;
+        const password = document.getElementById('studentPassword').value;
+        const role = document.getElementById('studentRole').value;
+        
+        if (!name || !email || !studentId || !course || !password) {
+          Swal.fire('Error', 'Please fill all required fields', 'error');
+          return;
+        }
+        
+        // Check if email already exists
+        if (users.some(user => user.email === email)) {
+          Swal.fire('Error', 'Email already exists in the system', 'error');
+          return;
+        }
+        
+        // Check if student ID already exists
+        if (users.some(user => user.studentId === studentId)) {
+          Swal.fire('Error', 'Student ID already exists in the system', 'error');
+          return;
+        }
+        
+        const newUser = {
+          id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+          name,
+          email,
+          studentId,
+          course,
+          role,
+          status: "active",
+          joinDate: new Date().toISOString().split('T')[0]
+        };
+        
+        users.push(newUser);
+        renderUserTable();
+        populateUserSelects();
+        
+        Swal.fire({
+          title: 'Success!',
+          text: 'Student added successfully',
+          icon: 'success',
+          confirmButtonColor: '#6a11cb'
+        });
+        
+        modals.addStudent.classList.remove('active');
+        forms.addStudent.reset();
+      }
+      
+      function handleAssignRole(e) {
+        e.preventDefault();
+        
+        const userId = parseInt(document.getElementById('userSelect').value);
+        const newRole = document.getElementById('newRole').value;
+        
+        if (!userId) {
+          Swal.fire('Error', 'Please select a user', 'error');
+          return;
+        }
+        
+        const user = users.find(u => u.id === userId);
+        if (!user) {
+          Swal.fire('Error', 'User not found', 'error');
+          return;
+        }
+        
+        const oldRole = user.role;
+        user.role = newRole;
+        
+        renderUserTable();
+        populateUserSelects();
+        
+        Swal.fire({
+          title: 'Role Updated!',
+          html: `Changed role for <b>${user.name}</b> from <span class="badge ${oldRole === 'admin' ? 'badge-admin' : 
+                                      oldRole === 'teacher' ? 'badge-teacher' : 
+                                      'badge-student'}">${oldRole}</span> to <span class="badge ${newRole === 'admin' ? 'badge-admin' : 
+                                      newRole === 'teacher' ? 'badge-teacher' : 
+                                      'badge-student'}">${newRole}</span>`,
+          icon: 'success',
+          confirmButtonColor: '#6a11cb'
+        });
+        
+        modals.assignRole.classList.remove('active');
+        forms.assignRole.reset();
+      }
+      
+      function handleManageAccess(e) {
+        e.preventDefault();
+        
+        const userId = parseInt(document.getElementById('accessUserSelect').value);
+        const newStatus = document.getElementById('accessStatus').value;
+        const reason = document.getElementById('accessReason').value;
+        
+        if (!userId) {
+          Swal.fire('Error', 'Please select a user', 'error');
+          return;
+        }
+        
+        const user = users.find(u => u.id === userId);
+        if (!user) {
+          Swal.fire('Error', 'User not found', 'error');
+          return;
+        }
+        
+        const oldStatus = user.status;
+        user.status = newStatus;
+        
+        renderUserTable();
+        
+        Swal.fire({
+          title: 'Access Updated!',
+          html: `Changed status for <b>${user.name}</b> from <b>${oldStatus}</b> to <b>${newStatus}</b>${reason ? `<br><br>Reason: ${reason}` : ''}`,
+          icon: 'success',
+          confirmButtonColor: '#6a11cb'
+        });
+        
+        modals.manageAccess.classList.remove('active');
+        forms.manageAccess.reset();
+      }
+      
+      function showRemoveStudentDialog() {
+        Swal.fire({
+          title: 'Remove Student',
+          input: 'select',
+          inputOptions: users.reduce((options, user) => {
+            options[user.id] = `${user.name} (${user.email})`;
+            return options;
+          }, {}),
+          inputPlaceholder: 'Select a student to remove',
+          showCancelButton: true,
+          confirmButtonColor: '#e74c3c',
+          confirmButtonText: 'Remove',
+          showLoaderOnConfirm: true,
+          preConfirm: (userId) => {
+            return new Promise((resolve) => {
+              setTimeout(() => {
+                resolve(userId);
+              }, 500);
+            });
+          },
+          allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const userId = parseInt(result.value);
+            confirmDeleteUser(userId);
+          }
+        });
+      }
+      
+      function editUser(userId) {
+        const user = users.find(u => u.id === userId);
+        if (!user) return;
+        
+        Swal.fire({
+          title: 'Edit User',
+          html:
+            `<input id="swal-name" class="swal2-input" placeholder="Name" value="${user.name}">` +
+            `<input id="swal-email" class="swal2-input" placeholder="Email" value="${user.email}">` +
+            `<input id="swal-studentId" class="swal2-input" placeholder="Student ID" value="${user.studentId || ''}">` +
+            `<input id="swal-course" class="swal2-input" placeholder="Course" value="${user.course || ''}">` +
+            `<select id="swal-role" class="swal2-input">
+              <option value="student" ${user.role === 'student' ? 'selected' : ''}>Student</option>
+              <option value="teacher" ${user.role === 'teacher' ? 'selected' : ''}>Teacher</option>
+              <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+            </select>` +
+            `<select id="swal-status" class="swal2-input">
+              <option value="active" ${user.status === 'active' ? 'selected' : ''}>Active</option>
+              <option value="suspended" ${user.status === 'suspended' ? 'selected' : ''}>Suspended</option>
+              <option value="banned" ${user.status === 'banned' ? 'selected' : ''}>Banned</option>
+            </select>`,
+          focusConfirm: false,
+          showCancelButton: true,
+          confirmButtonText: 'Update',
+          preConfirm: () => {
+            return {
+              name: document.getElementById('swal-name').value,
+              email: document.getElementById('swal-email').value,
+              studentId: document.getElementById('swal-studentId').value,
+              course: document.getElementById('swal-course').value,
+              role: document.getElementById('swal-role').value,
+              status: document.getElementById('swal-status').value
+            };
+          }
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const updatedData = result.value;
+            const userIndex = users.findIndex(u => u.id === userId);
+            
+            if (userIndex !== -1) {
+              users[userIndex] = {
+                ...users[userIndex],
+                name: updatedData.name,
+                email: updatedData.email,
+                studentId: updatedData.studentId,
+                course: updatedData.course,
+                role: updatedData.role,
+                status: updatedData.status
+              };
+              
+              renderUserTable();
+              populateUserSelects();
+              
+              Swal.fire({
+                title: 'Updated!',
+                text: 'User information has been updated.',
+                icon: 'success',
+                confirmButtonColor: '#6a11cb'
+              });
+            }
+          }
+        });
+      }
+      
+      function confirmDeleteUser(userId) {
+        const user = users.find(u => u.id === userId);
+        if (!user) return;
+        
+        Swal.fire({
+          title: 'Are you sure?',
+          html: `You are about to remove <b>${user.name}</b> (${user.email}) from the system.`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#e74c3c',
+          cancelButtonColor: '#6a11cb',
+          confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            users = users.filter(u => u.id !== userId);
+            renderUserTable();
+            populateUserSelects();
+            
+            Swal.fire({
+              title: 'Removed!',
+              text: 'The user has been removed.',
+              icon: 'success',
+              confirmButtonColor: '#6a11cb'
+            });
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

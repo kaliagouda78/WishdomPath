@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Indian Language Translator</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.2);
+      width: 95%;
+      max-width: 600px;
+    }
+    h2 {
+      text-align: center;
+      color: #6a11cb;
+      margin-bottom: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      margin-bottom: 10px;
+      resize: none;
+    }
+    select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 10px;
+      font-size: 16px;
+      border: 1px solid #aaa;
+    }
+    button {
+      background-color: #6a11cb;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #5311a3;
+    }
+    .icons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .icons i {
+      font-size: 24px;
+      cursor: pointer;
+      color: #6a11cb;
+    }
+    .icons i:hover {
+      color: #3e0b8c;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Translator</h2>
+    <textarea id="inputText" placeholder="Type or speak something..."></textarea>
+
+    <label for="fromLang">From Language:</label>
+    <select id="fromLang">
+      <option value="en">English</option>
+      <option value="hi">Hindi</option>
+      <option value="bn">Bengali</option>
+      <option value="te">Telugu</option>
+      <option value="mr">Marathi</option>
+      <option value="ta">Tamil</option>
+      <option value="ur">Urdu</option>
+      <option value="gu">Gujarati</option>
+      <option value="kn">Kannada</option>
+      <option value="ml">Malayalam</option>
+      <option value="pa">Punjabi</option>
+      <option value="or">Odia</option>
+      <option value="as">Assamese</option>
+      <option value="sa">Sanskrit</option>
+    </select>
+
+    <label for="toLang">To Language:</label>
+    <select id="toLang">
+      <option value="hi">Hindi</option>
+      <option value="en">English</option>
+      <option value="bn">Bengali</option>
+      <option value="te">Telugu</option>
+      <option value="mr">Marathi</option>
+      <option value="ta">Tamil</option>
+      <option value="ur">Urdu</option>
+      <option value="gu">Gujarati</option>
+      <option value="kn">Kannada</option>
+      <option value="ml">Malayalam</option>
+      <option value="pa">Punjabi</option>
+      <option value="or">Odia</option>
+      <option value="as">Assamese</option>
+      <option value="sa">Sanskrit</option>
+    </select>
+
+    <button onclick="translateText()">Translate</button>
+
+    <textarea id="outputText" placeholder="Translated text will appear here..." readonly></textarea>
+
+    <div class="icons">
+      <i class="fas fa-microphone" onclick="startListening()" title="Speak"></i>
+      <i class="fas fa-volume-up" onclick="speakText()" title="Listen"></i>
+    </div>
+  </div>
+
+  <script>
+    let voices = [];
+
+    window.speechSynthesis.onvoiceschanged = () => {
+      voices = window.speechSynthesis.getVoices();
+    };
+
+    function translateText() {
+      const text = document.getElementById("inputText").value;
+      const from = document.getElementById("fromLang").value;
+      const to = document.getElementById("toLang").value;
+      if (!text) return;
+
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`;
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          const result = data[0].map(d => d[0]).join("");
+          document.getElementById("outputText").value = result;
+        })
+        .catch(() => alert("❌ Translation failed. Try again later."));
+    }
+
+    function speakText() {
+      const text = document.getElementById("outputText").value;
+      const lang = document.getElementById("toLang").value;
+      if (!text) return;
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+
+      const matched = voices.find(v => v.lang.startsWith(lang));
+      if (matched) {
+        utterance.voice = matched;
+      }
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function startListening() {
+      if (!('webkitSpeechRecognition' in window)) {
+        alert("⚠️ Speech recognition not supported.");
+        return;
+      }
+
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = document.getElementById("fromLang").value;
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.start();
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById("inputText").value = transcript;
+        translateText();
+      };
+
+      recognition.onerror = (event) => {
+        alert("❌ Speech Recognition error: " + event.error);
+      };
+    }
+  </script>
+</body>
+</html>
